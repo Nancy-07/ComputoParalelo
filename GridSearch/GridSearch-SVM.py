@@ -5,6 +5,17 @@ import torchvision.transforms as transforms
 import medmnist
 from medmnist import INFO
 
+def nivelacion_cargas(D, n_p):
+    s=len(D)%n_p
+    t=int((len(D)-s)/n_p)
+    out=[]
+    for i in range(n_p):
+        if i<s:
+            out.append(D[i*t+i:i*t+i+t+1])            
+        else:
+            out.append(D[i*t+s:i*t+s+t])
+    return out
+
 def load_data(data_flag):
     data_flag = data_flag
     # data_flag = 'breastmnist'
@@ -43,7 +54,7 @@ def load_data(data_flag):
 def hyperparametros():
     kernels = ['linear', 'poly', 'rbf', 'sigmoid']
     # penalización  = list(np.arange(0.1, 1, 0.1)) + list(range(1, 51)) + list(range(100, 501, 50))
-    penalización  = list(np.arange(0.1, 0.3, 0.1)) + list(range(1, 51)) 
+    penalización  = list(np.arange(0.1, 1, 0.1)) + list(range(1, 10)) 
 
     # tols =  [1e-3, 1e-4, 1e-5]
     tols =  [1e-3, 1e-4]
@@ -75,8 +86,8 @@ train_images, test_images, train_labels, test_labels = load_data('breastmnist')
 hyperparameters = hyperparametros()
 if __name__ == '__main__': 
     threads=[]
-    N_THREADS=4
-    splits=np.split(np.array(hyperparameters), N_THREADS)
+    N_THREADS=1
+    splits = nivelacion_cargas(np.array(hyperparameters),N_THREADS)
     lock=multiprocess.Lock()
     for i in range(N_THREADS):
         # Se generan los hilos de procesamiento
